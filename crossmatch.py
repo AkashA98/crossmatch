@@ -4,8 +4,12 @@ from psrqpy import QueryATNF
 from astropy.time import Time
 from astropy.table import Table
 from astroquery.vizier import Vizier
+from matplotlib import pyplot as plt
 from astropy.coordinates import SkyCoord
 from astropy import units as u, constants as c
+
+
+from make_wise_cc_plot import wise_color_color_plot
 
 Vizier.TIMEOUT = 300
 Vizier.ROW_LIMIT = -1
@@ -229,6 +233,93 @@ class pulsars:
             self.has_pulsar_match = pulsar_match
 
 
+class WISE:
+    """Wise class to cross match with WISE catalog"""
+
+    def __init__(self, coords, radius=5, plot=False) -> None:
+        """WISE class to handle all of WISE queries
+
+        Args:
+            coords (astropy.coordinates.sky_coordinate.SkyCoord):
+                The coordinates that needs to be cross matched
+            radius (float, optional): cross-match radius. Defaults
+                to 5 arcsec.
+            plot (bool, Optional): Plot WISE color plor? Defaults to False.
+        """
+        self.coords = coords
+        self.rad = radius
+        self.plot = plot
+        return None
+
+    def do_query(self):
+        """Main function that does WISE query"""
+        wise = Vizier(columns=["all"]).query_region(
+            coordinates=self.coords, radius=self.rad * u.arcsec, catalog=catalogs.WISE
+        )
+        if len(wise) > 0:
+            wise = wise[0]
+            # Try to get a classifer based on colors
+            w1, w2, w3 = wise["W1mag"], wise["W2mag"], wise["W3mag"]
+            e_w1, e_w2, e_w3 = wise["e_W1mag"], wise["e_W2mag"], wise["e_W3mag"]
+
+            # Check the quality flags
+            w1_mask = np.array(
+                [True if i[0] in ["A", "B"] else False for i in wise["qph"]]
+            )
+            w2_mask = np.array(
+                [True if i[1] in ["A", "B"] else False for i in wise["qph"]]
+            )
+            w3_mask = np.array(
+                [True if i[2] in ["A", "B"] else False for i in wise["qph"]]
+            )
+
+            w12 = w1 - w2
+            w23 = w2 - w3
+
+            self.colors = np.array([w1, w2, w3])
+            self.errors = np.array([e_w1, e_w2, e_w3])
+            self.flags = np.array([w1_mask, w2_mask, w3_mask])
+
+            # Calculate errors
+            w12_err = np.ones(len(w1)) * np.nan
+            w23_err = np.ones(len(w1)) * np.nan
+            w12_err = np.sqrt(e_w1**2 + e_w2**2)
+            w23_err = np.sqrt(e_w2**2 + e_w3**2)
+            w12_upp_lim = np.zeros(len(w1))
+            w12_low_lim = np.zeros(len(w1))
+            w12_upp_lim[~w1_mask] = 1
+            w12_low_lim[~w2_mask] = 1
+
+            w23_upp_lim = np.zeros(len(w2))
+            w23_low_lim = np.zeros(len(w2))
+            w23_upp_lim[~w2_mask] = 1
+            w23_low_lim[~w3_mask] = 1
+
+            self.diff_colors = np.array([w12, w23])
+            self.diff_errors = np.array([w12_err, w23_err])
+            self.wise = wise
+
+            if self.plot:
+                _, ax = wise_color_color_plot()
+                ax.errorbar(
+                    w23,
+                    w12,
+                    yerr=w12_err,
+                    xerr=w23_err,
+                    uplims=w12_upp_lim,
+                    lolims=w12_low_lim,
+                    xuplims=w23_upp_lim,
+                    xlolims=w23_low_lim,
+                    capsize=2,
+                    barsabove=True,
+                    fmt=".",
+                    color="k",
+                )
+                plt.show()
+        else:
+            self.wise = None
+
+
 class catalog:
     def __init__(self, coords, radius=5) -> None:
         """Funtion to cross match given coordinates with variuos
@@ -262,18 +353,6 @@ class catalog:
         pul.do_pulsar_query()
         self.pulsars = pul
 
-    def wise_filter(self):
-        """Funtion to cross match with WISE catalog"""
-        coords = self.coords
-        wise = Vizier(columns=["all"]).query_region(
-            coordinates=coords, radius=self.rad * u.arcsec, catalog=catalogs.WISE
-        )
-        if len(wise) > 0:
-            wise = wise[0]
-
-        else:
-            self.wise = None
-
     def agn_filter(self):
         """Funtion to cross match with AGN catalogs"""
         coords = self.coords
@@ -299,7 +378,7 @@ class catalog:
 
 
 if __name__ == "__main__":
-    low = Table.read("racs_low_racs_mid_initial_cut.parquet")
+    low = Table.read("../racs_low_racs_mid_initial_cut.parquet")
 
     coords = SkyCoord(ra=low["ra_deg_cont"], dec=low["dec_deg_cont"])
     # coords = SkyCoord(ra=["17h25m23.45s"], dec=["-30d37m20.61s"])
@@ -308,4 +387,6 @@ if __name__ == "__main__":
     # cat.gaia_filter()
     # cat.pulsar_filter()
     # cat.agn_filter()
-    cat.crossmatch()
+    # cat.crossmatch()
+    w = WISE(coords=coords[:100], plot=True)
+    w.do_query()
