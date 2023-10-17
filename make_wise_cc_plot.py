@@ -171,5 +171,5 @@ def wise_color_color_plot(wise_objects=default_wise_objects):
 
 
 if __name__ == "__main__":
-    fig, ax = wise_color_color_plot(default_wise_objects)
+    fig, ax = wise_color_color_plot()
     plt.show()
