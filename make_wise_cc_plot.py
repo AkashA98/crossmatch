@@ -156,16 +156,16 @@ def wise_color_color_plot(wise_objects=default_wise_objects):
             patch_style.annotation_text,
             patch_style.annotation_position,
             ha="center",
-            fontsize="medium",
+            fontsize="large",
         )
     ax.set_xlim(-1, 6)
     ax.set_ylim(-0.5, 4)
     ax.set_aspect(1)
-    ax.set_xlabel("[4.6] - [12] (mag)", fontsize=15)
-    ax.set_ylabel("[3.4] - [4.6] (mag)", fontsize=15)
+    ax.set_xlabel("W2 [4.6] - W3 [12] (mag)", fontsize=20)
+    ax.set_ylabel("W1 [3.4] - W2 [4.6] (mag)", fontsize=20)
     ax.xaxis.set_major_locator(matplotlib.ticker.MultipleLocator(1))
     ax.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(1))
-    ax.tick_params(labelsize=15)
+    ax.tick_params(labelsize=20)
     plt.tight_layout()
     return fig, ax
 
