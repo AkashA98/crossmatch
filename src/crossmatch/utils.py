@@ -41,6 +41,29 @@ def dict_value_to_key(d, value):
         raise KeyError
 
 
+def parse_coordinates(ra, dec):
+    """Helper function to parse the input coordinates
+
+    Args:
+        ra (str/list): Right Ascension
+        dec (str/list): Declination
+
+    Returns:
+        astropy.coordinates.sky_coordinate.SkyCoord: coordinate object
+    """
+    if type(ra) is str:
+        ra = np.array([ra])
+        dec = np.array([dec])
+    try:
+        coord = SkyCoord(
+            ra=ra.astype(float) * u.degree, dec=dec.astype(float) * u.degree
+        )
+    except ValueError:
+        coord = SkyCoord(ra=ra, dec=dec, unit=(u.hourangle, u.degree))
+
+    return coord
+
+
 def correct_for_proper_motion(ra, dec, pmra, pmdec, ref_time, current_time):
     """Helper function to correct the catalogs for proper
         motion

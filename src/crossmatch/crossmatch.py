@@ -1,3 +1,4 @@
+import os, argparse
 from astropy.time import Time
 from astroquery.vizier import Vizier
 from astropy.coordinates import SkyCoord
@@ -78,12 +79,45 @@ class catalog:
 
 
 if __name__ == "__main__":
-    # low = Table.read("../racs_low_mid_catalogs/racs_low_racs_mid_initial_cut.parquet")
-    # low = Table.read("../tdes/tdes_in_racs.txt", format="ascii")
-    # names = low["col0"]
-    # names = [i[-3:] if "AT" in i else i[-4:] for i in names]
-    # coords = SkyCoord(ra=low["ra_deg_cont"], dec=low["dec_deg_cont"])
-    coords = SkyCoord("15h18m57.43632s -57d21m52.6608s")
+
+    parser = argparse.ArgumentParser(
+        description="""Script to to targetted searches for VAST data.
+        Does force fitting for a given position and if needed searches around the 
+        given coordinates to look for sources"""
+    )
+    parser.add_argument(
+        "coords",
+        help="""Source coordinates to search for, can be a csv file having the columns
+         RA and DEC or a pair of strings with RA and DEC of the source (ascii format).
+          For eg. (both of the following work, but beware of the '-' in declination)
+         python crossmatch.py 12:54:24.3 +34:12:05.3 (can be hmsdms or degrees) or 
+         python crossmatch.py my_list_of_coords.csv""",
+        nargs="+",
+        type=str,
+    )
+
+    args = parser.parse_args()
+
+    coord = args.coords
+    try:
+        mask = os.path.isfile(args.coords[0])
+        # This means a file with RA and DEC are given
+        tab = Table.read(args.coords[0], format="ascii")
+        coord = parse_coordinates(tab["RA"].data, tab["DEC"].data)
+        try:
+            names = tab["Name"]
+            names = [i.replace(" ", "") for i in names]
+        except NameError:
+            names = coord.to_string("hmsdms")
+    except (FileNotFoundError, TypeError):
+        if len(coord) == 2:
+            # This means a pair of coords is given
+            coord = parse_coordinates(coord[0], coord[1])
+        else:
+            ra, dec = coord[0].split(" ")
+            coord = parse_coordinates(ra, dec)
+        names = coord.to_string("hmsdms")
+    coords = SkyCoord("11h15m04.42s -61d09m39.80s")
 
     cat = catalog(coords=coords)
     cat.crossmatch()
