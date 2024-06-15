@@ -1,0 +1,7 @@
+numpy
+scipy
+astropy
+matplotlib
+astroquery
+svgpath2mpl
+bs4

@@ -2,7 +2,7 @@ import numpy as np
 from psrqpy import QueryATNF
 from astropy.time import Time
 from astropy.coordinates import SkyCoord
-from utils import correct_for_proper_motion
+from .utils import correct_for_proper_motion
 
 
 class PulsarClass:

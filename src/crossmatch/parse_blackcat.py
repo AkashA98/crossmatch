@@ -1,4 +1,4 @@
-import requests
+import os, requests
 import numpy as np
 from bs4 import BeautifulSoup
 from astropy.table import Table
@@ -44,4 +44,7 @@ def get_latest_vserion():
         tab.add_row(row)
 
     tab["Id"] = tab["Id"].astype(int)
-    tab.write("blackcat.txt", format="ascii", delimiter="\t", overwrite=True)
+
+    if not os.path.isdir("data/"):
+        os.mkdir("data/")
+    tab.write("data/blackcat.txt", format="ascii", delimiter="\t", overwrite=True)

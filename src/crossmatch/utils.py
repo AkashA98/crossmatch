@@ -113,7 +113,7 @@ def correct_for_proper_motion(ra, dec, pmra, pmdec, ref_time, current_time):
     return SkyCoord(ra=new_ra, dec=new_dec)
 
 
-def search_black_cat(tar_coords, text_file: str = "blackcat.txt"):
+def search_black_cat(tar_coords, text_file: str = "data/blackcat.txt"):
     """Helper function to crossmatch sources with XRBs using BLACKCAT
 
     Args:
