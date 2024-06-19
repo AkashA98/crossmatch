@@ -9,6 +9,7 @@ from .wise import WISEClass
 from .agns import AGNClass
 from .tns import TNSClass
 from .simbad import SimbadClass
+from .ned import NEDClass
 from .parse_blackcat import get_latest_vserion
 
 
@@ -58,6 +59,11 @@ class catalog:
         sim = SimbadClass(coords=coords, radius=rad)
         sim._do_corssmatch()
         self.simbad = sim
+
+        # Do the same with NED
+        ned = NEDClass(coords=coords, radius=rad)
+        ned._do_corssmatch()
+        self.ned = ned
 
         # Do WISE
         wise = WISEClass(coords=coords, radius=rad, plot=False)
