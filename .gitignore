@@ -1,2 +1,2 @@
-blackcat.txt
-__pycache__/
+src/crossmatch/__pycache__/
+src/*.egg-info/

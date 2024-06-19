@@ -6,6 +6,7 @@ src/crossmatch/agns.py
 src/crossmatch/crossmatch.py
 src/crossmatch/gaia.py
 src/crossmatch/make_wise_cc_plot.py
+src/crossmatch/ned.py
 src/crossmatch/parse_blackcat.py
 src/crossmatch/parse_decam_footprint.py
 src/crossmatch/pulsars.py
