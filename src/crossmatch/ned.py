@@ -1,3 +1,4 @@
+from astropy.table import Table, vstack
 from astroquery.ipac.ned import Ned
 from astropy import units as u
 import numpy as np
@@ -27,19 +28,19 @@ class NEDClass:
         coords = self.coords
         rad = self.rad
 
-        s = Ned.query_region(coordinates=coords, radius=rad * u.arcsec)
-
-        if len(s) > 0:
-            has_match = np.zeros(len(coords)).astype(bool)
-            has_match[s["No."] - 1] = True
-
-            match_name = np.array([""] * len(coords)).astype("U48")
-            match_name[s["No."] - 1] = s["Object Name"]
-
-            self.ned = s
-            self.ned_match = has_match
-            self.ned_match_name = match_name
-        else:
-            self.ned = None
-            self.ned_match = None
-            self.ned_match_name = None
+        # Ned queries do not work for multiple objects, so serialize it
+        res = Table()
+        ned_match = np.zeros(len(coords)).astype(bool)
+        ned_match_name = np.array([None] * len(coords))
+        for i, c in enumerate(coords):
+            s = Ned.query_region(coordinates=c, radius=rad * u.arcsec)
+            if len(s) > 0:
+                s.sort("Separation")
+                s.replace_column("No.", np.zeros(len(s)) + i)
+                ned_match[i] = True
+                ned_match_name[i] = s["Object Name"][0]
+                res = vstack([res, s])
+        self.ned = res
+        self.ned_match = ned_match
+        self.ned_match_name = ned_match_name
+        return None
