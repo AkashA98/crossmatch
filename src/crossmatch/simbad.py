@@ -2,6 +2,9 @@ from astroquery.simbad import Simbad
 from astropy import units as u
 import numpy as np
 
+Simbad.TIMEOUT = 100000
+Simbad.ROW_LIMIT = -1
+
 
 class SimbadClass:
     """Simbad class to cross match sources with simbad"""

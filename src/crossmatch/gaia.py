@@ -3,7 +3,7 @@ from astroquery.vizier import Vizier
 from astropy.coordinates import SkyCoord
 from astropy import units as u, constants as c
 
-Vizier.TIMEOUT = 1000
+Vizier.TIMEOUT = 100000
 Vizier.ROW_LIMIT = -1
 import numpy as np
 

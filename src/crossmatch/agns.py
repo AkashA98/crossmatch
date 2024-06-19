@@ -3,7 +3,7 @@ from astropy import units as u
 from astroquery.vizier import Vizier
 from astropy import units as u, constants as c
 
-Vizier.TIMEOUT = 1000
+Vizier.TIMEOUT = 100000
 Vizier.ROW_LIMIT = -1
 from .utils import catalogs, dict_value_to_key
 

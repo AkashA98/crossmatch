@@ -1,10 +1,6 @@
 import os, argparse
 from astropy.time import Time
-from astroquery.vizier import Vizier
 from astropy.coordinates import SkyCoord
-
-Vizier.TIMEOUT = 1000
-Vizier.ROW_LIMIT = -1
 
 from .utils import *
 from .gaia import GaiaClass
