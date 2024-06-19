@@ -132,7 +132,7 @@ setup(
         "scipy",
         "astropy",
         "matplotlib",
-        "astroquery",
+        "astroquery>=0.4.7",
         "svgpath2mpl",
         "bs4",
     ],  # Optional
