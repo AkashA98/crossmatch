@@ -29,17 +29,13 @@ class SimbadClass:
 
         s = Simbad.query_region(coordinates=coords, radius=rad * u.arcsec)
 
-        if not s is None:
-            has_match = np.zeros(len(coords)).astype(bool)
-            has_match[s["SCRIPT_NUMBER_ID"] - 1] = True
+        self.simbad = s
+        has_match = np.zeros(len(coords)).astype(bool)
+        match_name = np.array([""] * len(coords)).astype("U48")
 
-            match_name = np.array([""] * len(coords)).astype("U48")
+        if not s is None:
+            has_match[s["SCRIPT_NUMBER_ID"] - 1] = True
             match_name[s["SCRIPT_NUMBER_ID"] - 1] = s["MAIN_ID"]
 
-            self.simbad = s
-            self.simbad_match = has_match
-            self.simbad_match_name = match_name
-        else:
-            self.simbad = None
-            self.simbad_match = None
-            self.simbad_match_name = None
+        self.simbad_match = has_match
+        self.simbad_match_name = match_name
